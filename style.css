@@ -1,0 +1,31 @@
+.editor-blur {
+  filter: blur(150px) !important;
+  pointer-events: none;
+}
+
+#blur-control-wrapper {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  z-index: 10000;
+}
+
+#blur-toggle-btn, #blur-close-btn {
+  background-color: #e91e63;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#blur-close-btn {
+  background-color: #444;
+  padding: 8px;
+  font-size: 16px;
+  line-height: 1;
+}

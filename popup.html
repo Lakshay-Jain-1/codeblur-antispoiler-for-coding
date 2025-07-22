@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeBlur Stats</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 280px;
+      min-height: 300px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0;
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .header .subtitle {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .stats-container {
+      padding: 20px 16px;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+    }
+
+    .stat-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 700;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 16px;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-active {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #bbf7d0;
+    }
+
+    .status-inactive {
+      background: rgba(156, 163, 175, 0.2);
+      border: 1px solid rgba(156, 163, 175, 0.4);
+      color: #d1d5db;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .status-active .status-dot {
+      background: #22c55e;
+      animation: pulse 2s infinite;
+    }
+
+    .status-inactive .status-dot {
+      background: #9ca3af;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px 16px;
+      opacity: 0.8;
+    }
+
+    .reset-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 8px 16px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fecaca;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+      transition: all 0.2s ease;
+    }
+
+    .reset-btn:hover {
+      background: rgba(239, 68, 68, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .stat-item.clickable {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .stat-item.clickable:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .click-stats {
+      font-size: 12px;
+      color: #e5e7eb;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>CodeBlur</h1>
+    <div class="subtitle">LeetCode Time Tracker</div>
+  </div>
+  
+  <div id="loading" class="loading">
+    <div>Loading stats...</div>
+  </div>
+  
+  <div id="stats" class="stats-container" style="display: none;">
+    <div class="stat-item">
+      <div class="stat-label">Today</div>
+      <div class="stat-value" id="today-time">0m</div>
+    </div>
+    
+    <div class="stat-item">
+      <div class="stat-label">Total Time</div>
+      <div class="stat-value" id="total-time">0m</div>
+    </div>
+    
+    <div class="stat-item">
+      <div class="stat-label">Today's Runs</div>
+      <div class="stat-value" id="today-runs">0</div>
+    </div>
+    
+    <div class="stat-item">
+      <div class="stat-label">Today's Submits</div>
+      <div class="stat-value" id="today-submits">0</div>
+    </div>
+    
+    <div class="stat-item">
+      <div class="stat-label">Total Runs</div>
+      <div class="stat-value" id="total-runs">0</div>
+    </div>
+    
+    <div class="stat-item">
+      <div class="stat-label">Total Submits</div>
+      <div class="stat-value" id="total-submits">0</div>
+    </div>
+    
+    <div id="status" class="status-indicator status-inactive">
+      <div class="status-dot"></div>
+      <span id="status-text">Not tracking</span>
+    </div>
+    
+    <button id="reset-btn" class="reset-btn">Reset Today's Stats</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

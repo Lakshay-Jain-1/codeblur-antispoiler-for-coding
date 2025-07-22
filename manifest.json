@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "CodeBlur - Anti-Spoiler for Coding",
+  "version": "1.1",
+  "description": "Blur solved code, track focus time, and count Run/Submit clicks on LeetCode & GFG.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "codeblur@antispoiler.dev"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://leetcode.com/problems/*",
+        "https://www.geeksforgeeks.org/problems/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "style.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "CodeBlur Stats"
+  }
+}
