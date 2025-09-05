@@ -1,207 +1,370 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeBlur Stats</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CodeBlur Stats</title>
+    <style>
+      :root {
+        --bg-dark-1: #0b1220;
+        --bg-dark-2: #0f1724;
+        --glass-alpha: 0.06;
+        --neon-1: #ff4dff; /* pink */
+        --neon-2: #7c3aed; /* purple */
+        --neon-3: #06b6d4; /* cyan */
+        --neon-4: #34d399; /* green */
+        --accent-orange-1: #ff7a45;
+        --accent-orange-2: #ffb86b;
+        --muted-text: #cbd5e1;
+        --subtle-white: rgba(255, 255, 255, 0.03);
+      }
 
-    body {
-      width: 280px;
-      min-height: 300px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 0;
-    }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        width: 280px;
+        min-height: 300px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial;
+        background: radial-gradient(
+            1200px 400px at -10% 10%,
+            rgba(124, 58, 237, 0.06),
+            transparent 8%
+          ),
+          radial-gradient(
+            800px 300px at 110% 90%,
+            rgba(6, 182, 212, 0.03),
+            transparent 10%
+          ),
+          linear-gradient(135deg, var(--bg-dark-1) 0%, var(--bg-dark-2) 100%);
+        color: #e6eef8;
+        padding: 0;
+      }
 
-    .header {
-      background: rgba(0, 0, 0, 0.2);
-      padding: 16px;
-      text-align: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
+      /* HEADER with circular logo-ish mark */
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        padding-bottom: 12px;
+        background: transparent;
+      }
 
-    .header h1 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
+      .logo {
+        width: 56px;
+        height: 56px;
+        position: relative;
+        border-radius: 50%;
+        flex: 0 0 56px;
+        overflow: hidden;
+        display: inline-block;
+      }
 
-    .header .subtitle {
-      font-size: 12px;
-      opacity: 0.8;
-    }
+      /* neon ring glow (blurred) */
+      .logo::before {
+        content: "";
+        position: absolute;
+        inset: -16%;
+        background: conic-gradient(
+          from 120deg,
+          var(--neon-1),
+          var(--neon-2) 25%,
+          var(--neon-3) 60%,
+          var(--neon-4) 85%,
+          var(--neon-1)
+        );
+        transform: scale(1.15);
+        filter: blur(8px);
+        opacity: 0.95;
+        pointer-events: none;
+      }
 
-    .stats-container {
-      padding: 20px 16px;
-    }
+      /* dark inner circle (the center of the logo) */
+      .logo::after {
+        content: "";
+        position: absolute;
+        inset: 6px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 35% 30%,
+          #0a0f14 0%,
+          rgba(5, 9, 12, 1) 40%,
+          rgba(10, 12, 15, 1) 100%
+        );
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        box-shadow: inset 0 12px 28px rgba(0, 0, 0, 0.75),
+          0 10px 30px rgba(124, 58, 237, 0.08);
+      }
 
-    .stat-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      backdrop-filter: blur(10px);
-    }
+      /* header title with neon gradient text */
+      .header h1 {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1;
+        margin: 0;
+        letter-spacing: 0.2px;
+        background: linear-gradient(
+          90deg,
+          var(--neon-1),
+          var(--neon-2) 38%,
+          var(--neon-3) 68%,
+          var(--neon-4)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
 
-    .stat-item:last-child {
-      margin-bottom: 0;
-    }
+      .header .subtitle {
+        font-size: 11.5px;
+        color: var(--muted-text);
+        opacity: 0.9;
+        margin-top: 2px;
+      }
 
-    .stat-label {
-      font-size: 14px;
-      font-weight: 500;
-    }
+      /* stats area */
+      .stats-container {
+        padding: 16px;
+        padding-top: 8px;
+      }
 
-    .stat-value {
-      font-size: 16px;
-      font-weight: 700;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    }
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 12px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.01),
+          rgba(255, 255, 255, 0.006)
+        );
+        border-radius: 10px;
+        border: 1px solid var(--subtle-white);
+        box-shadow: 0 8px 24px rgba(2, 6, 23, 0.55),
+          inset 0 1px 0 rgba(255, 255, 255, 0.01);
+      }
 
-    .status-indicator {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 16px;
-      padding: 8px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-    }
+      .stat-label {
+        font-size: 13px;
+        color: var(--muted-text);
+      }
 
-    .status-active {
-      background: rgba(34, 197, 94, 0.2);
-      border: 1px solid rgba(34, 197, 94, 0.4);
-      color: #bbf7d0;
-    }
+      .stat-value {
+        font-size: 15px;
+        font-weight: 800;
+        background: linear-gradient(
+          90deg,
+          var(--neon-1),
+          var(--neon-2) 35%,
+          var(--neon-3) 70%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 8px 24px rgba(124, 58, 237, 0.06);
+      }
 
-    .status-inactive {
-      background: rgba(156, 163, 175, 0.2);
-      border: 1px solid rgba(156, 163, 175, 0.4);
-      color: #d1d5db;
-    }
+      /* status pill */
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-top: 16px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        gap: 8px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.01),
+          rgba(0, 0, 0, 0.02)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.02);
+      }
 
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      margin-right: 6px;
-    }
+      .status-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, var(--neon-1), var(--neon-3));
+        box-shadow: 0 0 12px rgba(124, 58, 237, 0.8),
+          0 2px 8px rgba(6, 182, 212, 0.06);
+        flex: 0 0 9px;
+      }
 
-    .status-active .status-dot {
-      background: #22c55e;
-      animation: pulse 2s infinite;
-    }
+      .status-active {
+        color: #bbf7d0;
+        border: 1px solid rgba(34, 197, 94, 0.12);
+        box-shadow: 0 6px 22px rgba(34, 197, 94, 0.06);
+      }
 
-    .status-inactive .status-dot {
-      background: #9ca3af;
-    }
+      .status-inactive {
+        color: #e5e7eb;
+        opacity: 0.9;
+      }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
+      /* reset button with orange badge look */
+      .reset-btn {
+        width: 100%;
+        margin-top: 12px;
+        padding: 10px 12px;
+        background: linear-gradient(
+          90deg,
+          var(--accent-orange-1),
+          var(--accent-orange-2)
+        );
+        border: none;
+        color: #111827;
+        font-weight: 700;
+        border-radius: 10px;
+        cursor: pointer;
+        box-shadow: 0 8px 28px rgba(255, 122, 69, 0.12),
+          inset 0 -2px 6px rgba(0, 0, 0, 0.08);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        font-size: 13px;
+      }
+      .reset-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(255, 122, 69, 0.16);
+      }
 
-    .loading {
-      text-align: center;
-      padding: 40px 16px;
-      opacity: 0.8;
-    }
+      .loading {
+        text-align: center;
+        padding: 40px 16px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 13px;
+      }
 
-    .reset-btn {
-      width: 100%;
-      margin-top: 12px;
-      padding: 8px 16px;
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      color: #fecaca;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 11px;
-      transition: all 0.2s ease;
-    }
+      /* clickable hover */
+      .stat-item.clickable {
+        cursor: pointer;
+        transition: transform 120ms ease, background 120ms ease;
+      }
+      .stat-item.clickable:hover {
+        transform: translateY(-4px);
+        background: rgba(255, 255, 255, 0.02);
+      }
 
-    .reset-btn:hover {
-      background: rgba(239, 68, 68, 0.3);
-      transform: translateY(-1px);
-    }
+      .click-stats {
+        font-size: 12px;
+        color: #e5e7eb;
+        margin-top: 2px;
+        opacity: 0.9;
+      }
 
-    .stat-item.clickable {
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
+      .control-panel {
+        position: fixed;
+        right: 12px;
+        top: 12px;
+        z-index: 999999;
+        display: flex;
+        gap: 8px;
+        padding: 6px;
+        border-radius: 12px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(0, 0, 0, 0.15)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 6px 24px rgba(2, 6, 23, 0.55),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
+      }
 
-    .stat-item.clickable:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: translateY(-1px);
-    }
+      /* shared button style */
+      .cp-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        color: #fff;
+        background: linear-gradient(
+          90deg,
+          var(--neon-1),
+          var(--neon-2) 40%,
+          var(--neon-3)
+        );
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
 
-    .click-stats {
-      font-size: 12px;
-      color: #e5e7eb;
-      margin-top: 2px;
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>CodeBlur</h1>
-    <div class="subtitle">LeetCode Time Tracker</div>
-  </div>
-  
-  <div id="loading" class="loading">
-    <div>Loading stats...</div>
-  </div>
-  
-  <div id="stats" class="stats-container" style="display: none;">
-    <div class="stat-item">
-      <div class="stat-label">Today</div>
-      <div class="stat-value" id="today-time">0m</div>
+      .cp-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35);
+      }
+
+      /* close button special */
+      .cp-btn.cp-close {
+        background: linear-gradient(90deg, #ef4444, #f87171);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+      }
+
+      .cp-btn.cp-close:hover {
+        box-shadow: 0 6px 18px rgba(239, 68, 68, 0.35);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div>
+        <h1>CodeBlur</h1>
+      </div>
     </div>
-    
-    <div class="stat-item">
-      <div class="stat-label">Total Time</div>
-      <div class="stat-value" id="total-time">0m</div>
-    </div>
-    
-    <div class="stat-item">
-      <div class="stat-label">Today's Runs</div>
-      <div class="stat-value" id="today-runs">0</div>
-    </div>
-    
-    <div class="stat-item">
-      <div class="stat-label">Today's Submits</div>
-      <div class="stat-value" id="today-submits">0</div>
-    </div>
-    
-    <div class="stat-item">
-      <div class="stat-label">Total Runs</div>
-      <div class="stat-value" id="total-runs">0</div>
-    </div>
-    
-    <div class="stat-item">
-      <div class="stat-label">Total Submits</div>
-      <div class="stat-value" id="total-submits">0</div>
-    </div>
-    
-    <div id="status" class="status-indicator status-inactive">
-      <div class="status-dot"></div>
-      <span id="status-text">Not tracking</span>
-    </div>
-    
-    <button id="reset-btn" class="reset-btn">Reset Today's Stats</button>
-  </div>
 
-  <script src="popup.js"></script>
-</body>
+    <div id="loading" class="loading">Loading stats...</div>
+
+    <div id="stats" class="stats-container" style="display: none">
+      <div class="stat-item">
+        <div class="stat-label">Today</div>
+        <div class="stat-value" id="today-time">0m</div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-label">Total Time</div>
+        <div class="stat-value" id="total-time">0m</div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-label">Today's Runs</div>
+        <div class="stat-value" id="today-runs">0</div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-label">Today's Submits</div>
+        <div class="stat-value" id="today-submits">0</div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-label">Total Runs</div>
+        <div class="stat-value" id="total-runs">0</div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-label">Total Submits</div>
+        <div class="stat-value" id="total-submits">0</div>
+      </div>
+
+      <div id="status" class="status-indicator status-inactive">
+        <div class="status-dot"></div>
+        <span id="status-text">Not tracking</span>
+      </div>
+
+      <button id="reset-btn" class="reset-btn">Reset Today's Stats</button>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
 </html>
