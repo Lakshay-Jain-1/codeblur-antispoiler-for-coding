@@ -1,5 +1,3 @@
-// background.js - Service Worker for Manifest V3
-
 const IDLE_THRESHOLD = 30000; // 30 seconds
 const ACTIVITY_CHECK_INTERVAL = 5000; // 5 seconds
 
@@ -9,7 +7,6 @@ let isLeetCodeActive = false;
 let lastActivityTime = Date.now();
 let idleCheckInterval = null;
 
-// --- UTILITY FUNCTIONS ---
 function isLeetCodeUrl(url) {
   return url && (url.includes('leetcode.com/problems/') || url.includes('geeksforgeeks.org/problems/'));
 }
@@ -23,7 +20,6 @@ function saveAccumulatedTime() {
       const today = new Date().toDateString();
       let todayTime = result.todayTime || 0;
 
-      // Reset daily stats if it's a new day
       if (result.lastDate !== today) {
         todayTime = 0;
       }
@@ -50,18 +46,16 @@ function checkForIdle() {
   }
 }
 
-// --- TRACKING FUNCTIONS ---
 function startTracking(tabId) {
   if (activeTabId !== tabId || !isLeetCodeActive) {
     console.log(`Starting tracking for tab ${tabId}`);
-    saveAccumulatedTime(); // Save any existing session
+    saveAccumulatedTime(); 
     
     activeTabId = tabId;
     startTime = Date.now();
     isLeetCodeActive = true;
     lastActivityTime = Date.now();
 
-    // Setup idle checking
     if (idleCheckInterval) clearInterval(idleCheckInterval);
     idleCheckInterval = setInterval(checkForIdle, ACTIVITY_CHECK_INTERVAL);
   }
@@ -85,7 +79,6 @@ function stopTracking() {
 function updateActivity() {
   lastActivityTime = Date.now();
   
-  // If user was idle and becomes active again, resume tracking
   if (activeTabId && !isLeetCodeActive) {
     chrome.tabs.get(activeTabId, (tab) => {
       if (chrome.runtime.lastError || !tab) return;
@@ -110,7 +103,6 @@ function getTimeStats(callback) {
     let todayRunClicks = result.todayRunClicks || 0;
     let todaySubmitClicks = result.todaySubmitClicks || 0;
 
-    // Reset daily stats if it's a new day
     if (result.lastDate !== today) {
       todayTime = 0;
       todayRunClicks = 0;
@@ -124,7 +116,6 @@ function getTimeStats(callback) {
       });
     }
 
-    // Add current session time
     let currentSessionTime = 0;
     if (isLeetCodeActive && startTime) {
       currentSessionTime = Date.now() - startTime;
@@ -152,7 +143,6 @@ function trackButtonClick(type) {
     const today = new Date().toDateString();
     const isNewDay = result.lastDate !== today;
     
-    // Reset daily counts for new day
     const todayRunClicks = isNewDay ? 0 : (result.todayRunClicks || 0);
     const todaySubmitClicks = isNewDay ? 0 : (result.todaySubmitClicks || 0);
 
@@ -180,9 +170,7 @@ function handleTabChange(url, tabId) {
   }
 }
 
-// --- EVENT LISTENERS ---
 
-// Handle messages from content scripts and popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('Message received:', message);
   
@@ -208,7 +196,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-// Handle tab changes
 chrome.tabs.onActivated.addListener((activeInfo) => {
   chrome.tabs.get(activeInfo.tabId, (tab) => {
     if (chrome.runtime.lastError || !tab) return;
@@ -222,13 +209,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
-// Handle window focus changes
 chrome.windows.onFocusChanged.addListener((windowId) => {
   if (windowId === chrome.windows.WINDOW_ID_NONE) {
-    // All windows lost focus
     updateActivity(); // This will trigger idle check
   } else {
-    // A window gained focus, check if it has a LeetCode tab
     chrome.tabs.query({ active: true, windowId: windowId }, (tabs) => {
       if (tabs.length > 0) {
         handleTabChange(tabs[0].url, tabs[0].id);
@@ -237,16 +221,13 @@ chrome.windows.onFocusChanged.addListener((windowId) => {
   }
 });
 
-// Save time when extension is being suspended
 chrome.runtime.onSuspend.addListener(() => {
   console.log('Extension suspending, saving time...');
   saveAccumulatedTime();
 });
 
-// Initialize on startup
 chrome.runtime.onStartup.addListener(() => {
   console.log('Extension starting up');
-  // Check if we're already on a LeetCode page
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs.length > 0) {
       handleTabChange(tabs[0].url, tabs[0].id);
@@ -254,10 +235,8 @@ chrome.runtime.onStartup.addListener(() => {
   });
 });
 
-// Handle installation
 chrome.runtime.onInstalled.addListener(() => {
   console.log('Extension installed/updated');
-  // Initialize storage if needed
   chrome.storage.local.get(['totalTime'], (result) => {
     if (result.totalTime === undefined) {
       chrome.storage.local.set({
