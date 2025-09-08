@@ -7,6 +7,7 @@ let isLeetCodeActive = false;
 let lastActivityTime = Date.now();
 let idleCheckInterval = null;
 
+
 function isLeetCodeUrl(url) {
   return url && (url.includes('leetcode.com/problems/') || url.includes('geeksforgeeks.org/problems/'));
 }
@@ -189,7 +190,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       getTimeStats((stats) => {
         sendResponse(stats);
       });
-      return true; // Keep message channel open for async response
+      return true; 
       
     default:
       console.log('Unknown message type:', message.type);

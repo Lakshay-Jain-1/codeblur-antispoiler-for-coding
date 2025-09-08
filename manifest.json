@@ -4,7 +4,6 @@
   "version": "1.2",
   "description": "Blur solved code, track focus time, and count Run/Submit clicks on LeetCode & GFG.",
   "permissions": [
-    "activeTab",
     "storage",
     "tabs"
   ],

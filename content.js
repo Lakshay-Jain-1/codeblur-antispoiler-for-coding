@@ -7,7 +7,6 @@ if (!window.__codeblur_listeners_attached) {
   window.__codeblur_listeners_attached = true;
 }
 
-
 function getProblemSlug() {
   const match = location.href.match(/problems\/([^/]+)/);
   return match ? match[1] : null;
@@ -28,6 +27,18 @@ function getUserUnblurChoice() {
   return false;
 }
 
+function setPanelClosedForSlug(closed) {
+  const slug = getProblemSlug();
+  if (!slug) return;
+  sessionStorage.setItem("codeblur-panel-closed-" + slug, closed ? "1" : "0");
+}
+
+function getPanelClosedForSlug() {
+  const slug = getProblemSlug();
+  if (!slug) return false;
+  return sessionStorage.getItem("codeblur-panel-closed-" + slug) === "1";
+}
+
 function setSkipNextBlur() {
   const slug = getProblemSlug();
   if (!slug) return;
@@ -45,7 +56,6 @@ function getSkipNextBlur() {
   if (!slug) return false;
   return sessionStorage.getItem("codeblur-skip-next-blur-" + slug) === "1";
 }
-
 
 function blurEditor(editor) {
   if (!editor) return;
@@ -75,6 +85,7 @@ function removeControlPanel() {
 }
 
 function createControlPanel(editor) {
+  if (getPanelClosedForSlug()) return; 
   removeControlPanel();
 
   const wrapper = document.createElement("div");
@@ -114,6 +125,7 @@ function createControlPanel(editor) {
 
   closeBtn.addEventListener("click", () => {
     unblurEditor(editor);
+    setPanelClosedForSlug(true);
     wrapper.remove();
     controlPanel = null;
     sendActivitySignal();
@@ -125,7 +137,6 @@ function createControlPanel(editor) {
 
   console.log("CodeBlur: Control panel created and bound to current editor");
 }
-
 
 function waitForElement(selector, callback, timeout = 15000) {
   const existing = document.querySelector(selector);
@@ -169,7 +180,9 @@ function initializeBlur() {
     if (currentUrl.includes(site)) {
       waitForElement(config.editorSelector, (editor) => {
         if (isInitialized && currentEditor === editor) {
-          console.log("CodeBlur: Already initialized on this editor node; skipping.");
+          console.log(
+            "CodeBlur: Already initialized on this editor node; skipping."
+          );
           return;
         }
 
@@ -186,24 +199,27 @@ function initializeBlur() {
           }
         }
 
-        createControlPanel(editor);
+        if (!getPanelClosedForSlug()) {
+          createControlPanel(editor);
+        }
 
         isInitialized = true;
-        console.log("CodeBlur: Initialization complete for", site, { userUnblurred, skipNext });
+        console.log("CodeBlur: Initialization complete for", site, {
+          userUnblurred,
+          skipNext,
+        });
       });
       break;
     }
   }
 }
 
-
 function sendActivitySignal() {
   try {
     if (!chrome.runtime?.id) {
       return;
     }
-    chrome.runtime.sendMessage({ type: "user_activity" }).catch(() => {
-    });
+    chrome.runtime.sendMessage({ type: "user_activity" }).catch(() => {});
   } catch (err) {
     if (err.message && err.message.includes("Extension context invalidated")) {
     } else {
@@ -225,7 +241,6 @@ function setupActivityTracking() {
   }
 }
 
-
 function handleClick(event) {
   let target = event.target;
   while (target && target !== document) {
@@ -235,8 +250,10 @@ function handleClick(event) {
   if (!target || target === document) return;
 
   if (location.href.includes("leetcode.com")) {
-    if (target.matches('[data-e2e-locator="console-run-button"]')) return sendButtonClick("run");
-    if (target.matches('[data-e2e-locator="console-submit-button"]')) return sendButtonClick("submit");
+    if (target.matches('[data-e2e-locator="console-run-button"]'))
+      return sendButtonClick("run");
+    if (target.matches('[data-e2e-locator="console-submit-button"]'))
+      return sendButtonClick("submit");
   }
 
   if (location.href.includes("geeksforgeeks.org")) {
@@ -244,8 +261,16 @@ function handleClick(event) {
     if (target.matches("#submit")) return sendButtonClick("submit");
   }
 
-  const allText = (target.textContent?.toLowerCase().trim() || "") + " " + (target.getAttribute("aria-label")?.toLowerCase() || "");
-  if ((allText.includes("run") || allText.includes("compile") || allText.includes("test")) && !allText.includes("submit")) {
+  const allText =
+    (target.textContent?.toLowerCase().trim() || "") +
+    " " +
+    (target.getAttribute("aria-label")?.toLowerCase() || "");
+  if (
+    (allText.includes("run") ||
+      allText.includes("compile") ||
+      allText.includes("test")) &&
+    !allText.includes("submit")
+  ) {
     sendButtonClick("run");
   } else if (allText.includes("submit")) {
     sendButtonClick("submit");
@@ -255,9 +280,10 @@ function handleClick(event) {
 function sendButtonClick(buttonType) {
   console.log(`CodeBlur: Tracked ${buttonType} click`);
   try {
-    chrome.runtime.sendMessage({ type: "button_click", buttonType: buttonType }).catch(() => {});
-  } catch (err) {
-  }
+    chrome.runtime
+      .sendMessage({ type: "button_click", buttonType: buttonType })
+      .catch(() => {});
+  } catch (err) {}
 
   if (buttonType === "submit") {
     lastSubmissionTime = Date.now();
@@ -265,14 +291,11 @@ function sendButtonClick(buttonType) {
   }
 }
 
-
 function handlePageChange() {
   console.log("CodeBlur: Page navigation detected");
-
   isInitialized = false;
   currentEditor = null;
   removeControlPanel();
-
   setTimeout(initializeBlur, 700);
 }
 
